@@ -1,14 +1,15 @@
 const Task = require("../models/Task");
 
 exports.createTask=async(req,res)=>{
-    const {title,description,assignedto}=req.body;
+    const {title,description,assignedTo}=req.body;
     try
     {
         const task=await Task.create({
             title,
             description,
-            assignedTo:assignedto,
-            createdBy:req.user._id
+            assignedTo,
+            createdBy:req.user._id,
+            file:req.file?req.file.filename:null
         });
         res.status(201).json({task});
     }

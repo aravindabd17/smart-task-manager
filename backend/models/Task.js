@@ -14,12 +14,15 @@ const taskSchema=new mongoose.Schema({
         enum:['pending','in-progress','completed'],
         default:'pending'
     },
+    file:{
+        type:String
+    },
     assignedTo:{
-        type:mongoose.Types.Schema.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     },
     createdBy:{
-        type:mongoose.Types.Schema.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     }
 },{timestamps:true});
