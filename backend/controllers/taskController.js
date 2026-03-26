@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const fs=require("fs");
 
 exports.createTask=async(req,res)=>{
     const {title,description,assignedTo}=req.body;
@@ -9,7 +10,7 @@ exports.createTask=async(req,res)=>{
             description,
             assignedTo,
             createdBy:req.user._id,
-            file:req.file?req.file.filename:null
+            file:req.file?`/uploads/${req.file.filename}`:null
         });
         res.status(201).json({task});
     }
@@ -33,26 +34,31 @@ exports.getTasks=async(req,res)=>{
     }
 };
 exports.updateTask=async(req,res)=>{
-    const task=await Task.findById(req.params.id);
-    if(!task)
-        return res.status(404).json({message:"Task not found"});
-
-    const {title,description,assignedTo}=req.body;
-    if(req.user.role!=="admin" && task.assignedTo.toString()!==req.user._id)
-        return res.status(403).json({message:"Unauthorized!"});
-
-    try {
-        const updatedTask=await Task.findByIdAndUpdate(
-            req.params.id,
+    try
+    {
+        const task=await Task.findById(req.params.id);
+        if(!task)
+            return res.status(404).json({message:"Task not found"});
+        const {title,description,assignedTo}=req.body;
+        if(req.user.role!=="admin" && task.assignedTo.toString()!==req.user._id)
+            return res.status(403).json({message:"Unauthorized!"});
+        if(req.file)
+        {
+            if(task.file)
             {
-                title,
-                description,
-                assignedTo
-            },{
-                new:true
+                fs.unlinkSync(`.${task.file}`);
             }
-        );
-        res.json({updatedTask});
+            else 
+            {
+                console.log("file already deleted!");
+            }
+            task.file=`/uploads/${req.file.filename}`;
+        }
+        task.title=title;
+        task.description=description;
+        task.assignedTo=assignedTo;
+        const updatedTask=await task.save();
+        res.json(updatedTask);
     } catch (error) {
         return res.status(500).json({message:error.message});
     }
@@ -61,8 +67,11 @@ exports.deleteTask=async(req,res)=>{
     const task=await Task.findById(req.params.id);
     if(!task)
         return res.status(404).json({message:"Task not found"});
-
     try {
+        if(task.file)
+        {
+            fs.unlinkSync(`.${task.file}`);
+        }
         await Task.findByIdAndDelete(req.params.id)
         res.json({message:"Task deleted"});
     } catch (error) {
