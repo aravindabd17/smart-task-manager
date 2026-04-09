@@ -19,20 +19,35 @@ exports.createTask=async(req,res)=>{
         return res.status(500).json({message:error.message});
     }
 };
-exports.getTasks=async(req,res)=>{
-    let tasks;
-    try {
-       
-        if(req.user.role==="admin")
-            tasks=await Task.find().populate("assignedTo","name email");
-        else
-            tasks=await Task.find({assignedTo:req.user._id});
+    exports.getTasks=async(req,res)=>{
+        let tasks;
+        try {
+            let query={};
+            const page=req.query.page || 1;
+            const limit=req.query.limit || 5;
+            const skip=(page-1)/limit;
 
-        res.json({tasks});
-    } catch (error) {
-        return res.status(500).json({message:error.message});
-    }
-};
+            if(req.user.role!=="admin")
+                query={assignedTo:req.user._id};
+
+            const totalPages=await Task.countDocuments(query);
+        
+            const tasks=await Task.find(query)
+                .populate("assignedTo","name email")
+                .sort({createdAt:-1})
+                .skip(skip)
+                .limit(limit);
+
+            res.json({
+                tasks,
+                currentPage:page,
+                pageCount:Math.ceil(totalPages/limit),
+                totalPages
+            });
+        } catch (error) {
+            return res.status(500).json({message:error.message});
+        }
+    };
 exports.updateTask=async(req,res)=>{
     try
     {

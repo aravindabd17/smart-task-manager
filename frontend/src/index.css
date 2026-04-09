@@ -4,3 +4,16 @@
   margin: 0;
   box-sizing: border-box;
 }
+.modal-content
+{
+  padding: 30px;
+}
+.modal-header
+{
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header .btn 
+{
+  
+}

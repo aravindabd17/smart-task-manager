@@ -6,7 +6,7 @@ const fileStorage=Multer.diskStorage({
         cb(null,"uploads/")
     },
     filename(req,file,cb){
-        cb(null,`Date.now()-${file.originalname}`)
+        cb(null,`${Date.now()}-${file.originalname}`)
     }
 });
 
@@ -17,7 +17,7 @@ const fileFilter=(req,file,cb)=>{
         cb(new Error('File type is not supported. Allowed type jpg,png and pdf'),false);
 };
 const upload=Multer({
-    fileStorage,
+    storage:fileStorage,
     fileFilter,
     limits:{fileSize: 2 *1024 *1024}
 });

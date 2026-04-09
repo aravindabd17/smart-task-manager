@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import API from "../services/API";
+import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
     const [formData,setFormData]=useState({email:"",password:""});
+    const {login}=useContext(AuthContext);
+    const navigate=useNavigate();
+
     const handleChange=(e)=>{
         setFormData({...formData,[e.target.name]:e.target.value});
     }
@@ -12,11 +16,12 @@ const Login = () => {
         e.preventDefault();
         try {
             const result=await API.post(`/auth/login`,formData);
-            localStorage.setItem("user",JSON.stringify(result.data));
+            login(result.data);
+            navigate("/");
             toast.success("Login Successfully!");
         } catch (error) {
-            console.log(error);
-            toast.error(error.response?.data?.message);
+            console.log(error.response);
+            toast.error(error.response?.data?.error);
         }
     }
     return (
@@ -25,11 +30,11 @@ const Login = () => {
             <form method="post" onSubmit={handleSubmit}>
                 <div className='form-group mb-3'>
                     <label htmlFor='email'>Email</label>
-                    <input type='email' name='email' className='form-control'/>
+                    <input type='email' name='email' onChange={handleChange} className='form-control'/>
                 </div>
                 <div className='form-group mb-3'>
                     <label htmlFor='password'>Password</label>
-                    <input type='password' name='password' className='form-control'/>
+                    <input type='password' name='password' onChange={handleChange} className='form-control'/>
                 </div>
                 <button type='submit' className='btn btn-primary w-100'>Login</button>
                 <Link className="mt-3 d-block text-center" to="/register">Don't have an account? Click here.</Link>
