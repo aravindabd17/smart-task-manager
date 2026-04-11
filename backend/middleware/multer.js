@@ -1,6 +1,6 @@
 const Multer=require("multer");
 
-const allowedTypes=['image/jpeg','image/png','application/pdf'];
+const allowedTypes=['image/jpeg','image/png','image/webp','application/pdf'];
 const fileStorage=Multer.diskStorage({
     destination(req,file,cb){
         cb(null,"uploads/")

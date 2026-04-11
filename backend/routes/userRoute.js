@@ -30,7 +30,6 @@ Router.post("/register",async(req,res)=>{
 
 Router.post("/login",async(req,res)=>{
     const {email,password}=req.body;
-    console.log(req.body);
     try {
         const user=await User.findOne({email});
         if(!user)
@@ -45,6 +44,11 @@ Router.post("/login",async(req,res)=>{
     } catch (error) {
         res.status(500).json({error:error.message});
     }
+});
+
+Router.get("/users",async(req,res)=>{
+    const users=await User.find({});
+    res.json(users)
 });
 
 Router.get("/profile",protect,async(req,res)=>{
