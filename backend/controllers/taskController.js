@@ -61,6 +61,21 @@ exports.createTask=async(req,res)=>{
             return res.status(500).json({message:error.message});
         }
     };
+    exports.allTasks=async(req,res)=>{
+        try {
+            let query={};
+           
+            if(req.user.role!=="admin")
+                query={assignedTo:req.user._id};
+
+            const tasks=await Task.find(query);
+            res.json({
+                tasks,
+            });
+        } catch (error) {
+            return res.status(500).json({message:error.message});
+        }
+    };
 
 //     exports.getTasks = async (req, res) => {
 //     try {
@@ -119,7 +134,7 @@ exports.updateTask=async(req,res)=>{
         const task=await Task.findById(req.params.id);
         if(!task)
             return res.status(404).json({message:"Task not found"});
-        const {title,description,assignedTo}=req.body;
+        const {title,description,status,assignedTo}=req.body;
 
         console.log(assignedTo);
         if(req.user.role!=="admin" && task.assignedTo.toString()!==req.user._id)
@@ -139,6 +154,7 @@ exports.updateTask=async(req,res)=>{
         task.title=title;
         task.description=description;
         task.assignedTo=assignedTo;
+        task.status=status;
         const updatedTask=await task.save();
         res.json(updatedTask);
     } catch (error) {

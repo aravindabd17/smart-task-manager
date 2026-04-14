@@ -3,7 +3,7 @@ import API from '../services/API';
 import toast from 'react-hot-toast';
 
 const EditModal = ({fetchTasks,selectedTask,showEditModal,setShowEditModal}) => {
-    const [task,setTask]=useState({id:"",title:"",description:"",file:null,assignedTo:""});
+    const [task,setTask]=useState({id:"",title:"",description:"",file:null,status:"",assignedTo:""});
     const [users,setUsers]=useState([]);
     const handleSubmit=async(e)=>{
         e.preventDefault();
@@ -12,6 +12,7 @@ const EditModal = ({fetchTasks,selectedTask,showEditModal,setShowEditModal}) => 
             formData.append("title",task.title);
             formData.append("description",task.description);
             formData.append("assignedTo",task.assignedTo);
+            formData.append("status",task.status);
             if(task.file)
                 formData.append("file",task.file);
             const result=await API.put(`/task/updateTask/${task.id}`,formData);
@@ -31,7 +32,8 @@ const EditModal = ({fetchTasks,selectedTask,showEditModal,setShowEditModal}) => 
                 id:selectedTask._id,
                 title:selectedTask.title,
                 description:selectedTask.description,
-                assignedTo:selectedTask.assignedTo ?? null
+                status:selectedTask.status,
+                assignedTo:selectedTask.assignedTo._id ?? null
             });
         }
     },[selectedTask]);
@@ -82,6 +84,7 @@ const EditModal = ({fetchTasks,selectedTask,showEditModal,setShowEditModal}) => 
                     <div className='form-group mb-3'>
                         <label htmlFor='assignedTo'>Assigned To</label>
                         <select 
+                            name="assignedTo"
                             className='form-control mt-2' 
                             value={task.assignedTo}
                             onChange={e=>setTask({...task,assignedTo:e.target.value})}
@@ -92,6 +95,18 @@ const EditModal = ({fetchTasks,selectedTask,showEditModal,setShowEditModal}) => 
                                     <option value={user._id}>{user.name} ({user.email})</option>
                                 ))
                             }
+                        </select>
+                    </div>
+                     <div className='form-group mb-3'>
+                        <label htmlFor='status'>Status</label>
+                        <select 
+                            className='form-control mt-2' 
+                            value={task.status}
+                            onChange={e=>setTask({...task,status:e.target.value})}
+                        >
+                            <option value="">-- Select Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">completed</option>
                         </select>
                     </div>
                     <button type='submit' className='btn btn-primary w-100'>Update Task</button>
